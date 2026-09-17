@@ -2,9 +2,11 @@ import cv2
 import mediapipe as mp
 import urllib.request
 import os
+import time
 from mediapipe.tasks import python as mp_tasks
 from mediapipe.tasks.python import vision
 from serial_connector import SerialConnector
+
 
 #Model download. Same directory as file.
 MODEL_PATH = "hand_landmarker.task"
@@ -91,6 +93,7 @@ def draw_skeleton(frame, landmarks, w, h):
 #Serial Communication
 serial_connector = SerialConnector("COM5", 115200)
 serial_connector.connect()
+time.sleep(2)
 
 #Enough resolution is 640x480, will work well with less. down to 240x180
 cap = cv2.VideoCapture(0)
