@@ -5,13 +5,17 @@ import os
 from mediapipe.tasks import python as mp_tasks
 from mediapipe.tasks.python import vision
 
-# --- One-time model download ---
+#Model download. Same directory as file.
 MODEL_PATH = "hand_landmarker.task"
 MODEL_URL = "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/latest/hand_landmarker.task"
 
+
+
+#If model doesnt exist, download it. One Time
 if not os.path.exists(MODEL_PATH):
     print("Downloading hand landmarker model...")
     urllib.request.urlretrieve(MODEL_URL, MODEL_PATH)
+
 
 base_options = mp_tasks.BaseOptions(model_asset_path=MODEL_PATH)
 options = vision.HandLandmarkerOptions(
@@ -23,6 +27,8 @@ options = vision.HandLandmarkerOptions(
 )
 landmarker = vision.HandLandmarker.create_from_options(options)
 
+
+#Joints of specific fingers. Ranges.
 FINGER_TIPS = {
     "thumb": (4, 2),
     "index": (8, 6),
@@ -31,6 +37,8 @@ FINGER_TIPS = {
     "pinky": (20, 18),
 }
 
+
+#Between what joints to join the lines.
 HAND_CONNECTIONS = [
     (0, 1), (1, 2), (2, 3), (3, 4),
     (0, 5), (5, 6), (6, 7), (7, 8),
@@ -55,6 +63,8 @@ def is_finger_extended(landmarks, tip_idx, pip_idx, wrist_idx=0):
     dist_pip = (pip.x - wrist.x) ** 2 + (pip.y - wrist.y) ** 2
     return dist_tip > dist_pip
 
+
+#Classify Rock Paper And Scissors. No thumb. not leeded. 
 def classify_gesture(landmarks):
     extended = {name: is_finger_extended(landmarks, t, p) for name, (t, p) in FINGER_TIPS.items()}
     non_thumb_count = sum(extended[f] for f in ("index", "middle", "ring", "pinky"))
@@ -68,13 +78,16 @@ def classify_gesture(landmarks):
     else:
         return "Unknown"
 
+
 def draw_skeleton(frame, landmarks, w, h):
     points = [(int(lm.x * w), int(lm.y * h)) for lm in landmarks]
     for start_idx, end_idx in HAND_CONNECTIONS:
-        cv2.line(frame, points[start_idx], points[end_idx], (255, 255, 255), 2)
+        cv2.line(frame, points[start_idx], points[end_idx], (0, 0, 0), 2)
     for x, y in points:
         cv2.circle(frame, (x, y), 4, (0, 255, 0), -1)
 
+
+#Enough resolution is 640x480, will work well with less. down to 240x180
 cap = cv2.VideoCapture(0)
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
