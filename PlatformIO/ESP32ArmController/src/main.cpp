@@ -12,7 +12,7 @@ void loop() {
 
   if (Serial.available() > 0) {
     String incomingData = Serial.readStringUntil('\n');
-    Serial.print("You said: ");
+    Serial.print("Serial Recieved: ");
     Serial.println(incomingData);
   }
 

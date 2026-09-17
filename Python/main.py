@@ -89,16 +89,16 @@ def draw_skeleton(frame, landmarks, w, h):
 
 
 #Serial Communication
-serial_connector = SerialConnector("COM9", 115200)
-
+serial_connector = SerialConnector("COM5", 115200)
+serial_connector.connect()
 
 #Enough resolution is 640x480, will work well with less. down to 240x180
 cap = cv2.VideoCapture(0)
-cv2.namedWindow("RPS Robot", cv2.WINDOW_NORMAL)
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 
 frame_timestamp_ms = 0
+last_sent_gesture = None
 
 while cap.isOpened():
     success, frame = cap.read()
@@ -123,12 +123,17 @@ while cap.isOpened():
 
         if gesture_text in COUNTER_MOVE:
             counter_text = f"Robot plays: {COUNTER_MOVE[gesture_text]}"
+            
+            if gesture_text != last_sent_gesture:
+                serial_connector.send(gesture_text + "\n")
+                last_sent_gesture = gesture_text
+                print(f"Sent to ESP32: {gesture_text}")
 
-    # Player's gesture, bottom-left, green
+    # Player's gesture, bottom-left
     cv2.putText(frame, gesture_text, (20, h - 20), cv2.FONT_HERSHEY_SIMPLEX,
                 1.0, (0, 255, 0), 2)
 
-    # What the robot needs to win, upper-right, red
+    # What the robot needs to win, upper-right
     if counter_text:
         text_size, _ = cv2.getTextSize(counter_text, cv2.FONT_HERSHEY_SIMPLEX, 0.9, 2)
         text_x = w - text_size[0] - 20
@@ -140,6 +145,9 @@ while cap.isOpened():
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
+    response = serial_connector.receive()
+    if response:
+        print(f"Received from ESP32: {response}")
 
 cap.release()
 cv2.destroyAllWindows()
