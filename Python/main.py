@@ -4,6 +4,7 @@ import urllib.request
 import os
 from mediapipe.tasks import python as mp_tasks
 from mediapipe.tasks.python import vision
+from serial_connector import SerialConnector
 
 #Model download. Same directory as file.
 MODEL_PATH = "hand_landmarker.task"
@@ -87,8 +88,13 @@ def draw_skeleton(frame, landmarks, w, h):
         cv2.circle(frame, (x, y), 4, (0, 255, 0), -1)
 
 
+#Serial Communication
+serial_connector = SerialConnector("COM9", 115200)
+
+
 #Enough resolution is 640x480, will work well with less. down to 240x180
 cap = cv2.VideoCapture(0)
+cv2.namedWindow("RPS Robot", cv2.WINDOW_NORMAL)
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 
