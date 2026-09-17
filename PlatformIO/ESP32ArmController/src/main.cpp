@@ -5,16 +5,12 @@ int myFunction(int, int);
 
 void setup() {
   Serial.begin(115200);
-  // put your setup code here, to run once:
-  int result = myFunction(2, 3);
-  Serial.print(result);
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-}
-
-// put function definitions here:
-int myFunction(int x, int y) {
-  return x + y;
+  if (Serial.available() > 0) {
+    String incomingData = Serial.readStringUntil('\n');
+    Serial.print("You said: ");
+    Serial.println(incomingData);
+  }
 }
