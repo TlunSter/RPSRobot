@@ -78,6 +78,8 @@ def classify_gesture(landmarks):
         return "Paper"
     elif extended["index"] and extended["middle"] and not extended["ring"] and not extended["pinky"]:
         return "Scissors"
+    elif extended["middle"] and not extended["index"] and not extended["ring"] and not extended["pinky"]:
+        return "faker"
     else:
         return "Unknown"
 
@@ -91,7 +93,7 @@ def draw_skeleton(frame, landmarks, w, h):
 
 
 #Serial Communication
-serial_connector = SerialConnector("COM5", 115200)
+serial_connector = SerialConnector("COM12", 115200)
 serial_connector.connect()
 time.sleep(2)
 
